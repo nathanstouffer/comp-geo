@@ -39,7 +39,7 @@ Present an $O(\log n)$-time algorithm which, given $P$ and $P'$, compute the two
 points $p_i \in P$ and $p_j' \in P'$ such that their common support line passes
 through these two points.
 
-Briefly justify your algorithm's correctness and drive its running time.  ({\bf
+Briefly justify your algorithm's correctness and derive its running time.  ({\bf
 Hint:} The correctness proof involves a case analysis.  Please be careful, a
 poorly drawn figure may lead to an incorrect hypothesis.)
 
@@ -47,10 +47,9 @@ poorly drawn figure may lead to an incorrect hypothesis.)
 
 Consider a set $P = \{p_1, \ldots, p_n \}$ of points in the plane, where $p_i =
 (x_i, y_i)$. A \emph{Pareto set} for $P$, denoted $\pareto{P}$, (named after
-the Italian engineer and economist Vilfredo Pareto), is a subset of points
-$p_i$ such that there is no $p_j \in P (j \neq i)$ such that $x_j \geq x_i$ and
-$y_j \geq y_i$.  That is, each point of $\pareto{P}$ has the property that
-there is no point of $P$ that is both to the right and above it.
+the Italian engineer and economist Vilfredo Pareto), is the smallest subset of points
+such that for all $p_i \in P$ there exists a $p_j \in \pareto{P}$ such that $x_i \leq x_j$ and
+$y_i \leq y_j$.
 
 \begin{figure}[h]
     \centering
@@ -75,7 +74,7 @@ This is equivalent to requiring that there exists a half plane (with $p$ on the 
 For the $\pareto{P}$, we have a similar requirement with a ``quarter'' plane.
 Consider a plane with $p$ at the origin and axes in the regular directions.
 Then $p$ is in $\pareto{P}$ if and only if no points in $P$ are inside (or on the border) of the first quadrant of the plane centered at $p$.
-If $p$ is in the $\pareto{P}$ the no point $p'$ has both $x' \geq x$ and $y' \geq y$ so $p$ so no values can be in the first quadrant.
+If $p$ is in the $\pareto{P}$ then no point $p'$ has both $x' \geq x$ and $y' \geq y$ so no values can be in the first quadrant.
 Proving the converse (via contrapositive), if some point $p'$ is inside the first quadrant, then both $x' \geq x$ and $y' \geq y$ so $p$ cannot be in $\pareto{P}$.
 
 \item (5 points) Devise an analogue of Graham's convex-hull algorithm for computing
@@ -86,7 +85,7 @@ algorithm.)
 
 \answer
 First we give a quick description of the algorithm (relative to Graham's Scan).
-Instead of sorting the points in increasing order (like Graham's Scan), sort them in increasing order according to their $x$ coordinate: $P = \{ p_1, p_2, ..., p_n \}$ where $i < j$ implies $x_i > x_j$.
+Instead of sorting the points in increasing order (like Graham's Scan), sort them in decreasing order according to their $x$ coordinate: $P = \{ p_1, p_2, ..., p_n \}$ where $i < j$ implies $x_i > x_j$.
 Then push $p_1$ on to the stack $S$.
 Then for $i$ from $2$ to $n$, if $y_i \geq S[top]_y$ (where $S[top]_y$ is the $y$ coordinate of the point $S[top]$) then push $p_i$ to the stack.
 
@@ -96,11 +95,9 @@ So the total run time for this algorithm is $O(n \log n) + O(n) = O(n \log (n) +
 
 Now we give a discussion of correctnes.
 Post sorting, we know $p_1 \in \pareto{P}$ by the following line of reasoning.
-The definition of $\pareto{P}$ is a subset of points $p_i$ such that there is no $p_j \in P (j \neq i)$ such that $x_j \geq x_i$ and $y_j \geq y_i$.
-This is equivalent to a subset of points $p_i$ such that $\forall p_j \in P (j \neq i)$ we have $x_j < x_i$ or $y_j < y_i$.
-Then it is clear that the point with the largest $x$ coordinate (which is unique by general position assumptions) satisfies the conditions to be in $\pareto{P}$.
-But $p_1$ is the point with the largest $x$ coordinate, so $p_1 \in \pareto{P}$.
-Incidentally, the point with the largest $y$ coordinate is also in $\pareto{P}$; we will use this fact in the next paragraph.
+The definition of $\pareto{P}$ is the smallest subset of points such that for all $p_i \in P$ there exists a $p_j \in \pareto{P}$ such that $x_i \leq x_j$ and $y_i \leq y_j$.
+The point $p_1$ is the point with the largest $x$ coordinate, so if $p_1 \notin \pareto{P}$ then there would be no point in $\pareto{P}$ with a larger $x$ coordinate.
+Similarly, the point with the largest $y$ coordinate is also in $\pareto{P}$; we will use this fact in the next paragraph.
 
 Now let $P_i = \{ p_1, p_2, ..., p_i \}$.
 We claim that after attempting to insert $p_i$ to $S_i$ (the stack at iteration $i$), the stack $S_i$ contains $\pareto{P_i}$ and $S[top]$ has the largest $y$ coordinate in $P_i$.
@@ -133,7 +130,41 @@ left of the oriented line described by the first two points) or a right turn.
 Now, let a point $q$ and a convex polygon $P = \{ p_1, \ldots , p_n \}$ in the
 plane be given, where the points of $P$ are stored in an array in
 counter-clockwise order around $P$ and $q$ is outside of $P$. Give pseudo-code
-to determine the tangents from $q$ to $P$ in $O(\log n)$ time.
+to determine the tangents from $q$ to $P$ in $O(\log n)$ time. \\
+
+\answer
+We begin by establishing a lemma about tanget lines in the context of this problem: the line $\overline{qp_k}$ is tangent to $P$ if and only if $sgn(orient(q, p_{k+1}, p_k)) \neq sgn(orient(q, p_k, p_{k-1}))$.
+Going to the right, suppose that the line $\overline{qp_k}$ is tangent to $P$.
+Then the points $p_{k-1}, p_{k+1}$ must be on the same side of $\overline{q p_k}$.
+Then (hopefully) Figure \ref{fig:tangent} is convincing evidence to say that $sgn(orient(q, p_{k+1}, p_k)) \neq sgn(orient(q, p_k, p_{k-1}))$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{tangent}
+    \caption{Line $\overline{q p_k}$ is tangent to $P$}
+    \label{fig:tangent}
+\end{figure}
+
+Now going to the left, we will show the contrapositive.
+Suppose that $sgn(orient(q, p_{k+1}, p_k)) = sgn(orient(q, p_k, p_{k-1}))$.
+Here we can say that $p_{k-1}$ and $p_{k+1}$ must lie on opposite sides of the line $\overline{q p_k}$ (Figure \ref{fig:nottangent} depicts an example).
+But then $\overline{q p_k}$ cannot be a tangent line so the contrapositive is shown.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{nottangent}
+    \caption{Line $\overline{q p_k}$ is not tangent to $P$}
+    \label{fig:nottangent}
+\end{figure}
+
+Now we can use the lemma to construct an $O(\log n)$ algorithm to find the tangent lines from $q$ to $P$.
+
+\begin{algorithm}
+    \caption{Compute tangent lines from $q$ to $P$}
+    \begin{algorithmic}
+        \STATE $y \gets 1$
+    \end{algorithmic}
+\end{algorithm}
 
 \section*{Problem 4 (10 points)}
 
