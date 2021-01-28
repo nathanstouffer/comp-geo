@@ -11,16 +11,14 @@
 \newcommand{\pareto}[1]{\rm{Pareto}(#1)}
 \newcommand{\conv}[1]{\rm{conv}(#1)}
 
+
+
 \begin{document}
 
-{ ~\\
-    \course \\
-    \proj \\
-    Due \dueDate \\
-    \name
-}
+\coverpage{01}
 
-\section*{Problem 1 (10 points)}
+\newpage
+\section*{Problem 1}
 
 Let $P = \{ p_1, \ldots, p_n \}$ and $P' = \{ p_1', \ldots, p_n' \}$ be the
 vertex sets of two upper hulls in the plane.  Each set is presented as a
@@ -29,11 +27,11 @@ sequence of points sorted from left to right.  Let $p_i = (x_i, y_i)$ and $p_j'
 to the left of $P'$, meaning that there exists a value $z$ such that for all
 $i$ and $j$, $x_i < z < x_j'$.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\textwidth]{tangents}
-    \caption{Problem 1: Computing the upper tangent of two hulls}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=0.5\textwidth]{tangents}
+%    \caption{Problem 1: Computing the upper tangent of two hulls}
+%\end{figure}
 
 Present an $O(\log n)$-time algorithm which, given $P$ and $P'$, compute the two
 points $p_i \in P$ and $p_j' \in P'$ such that their common support line passes
@@ -41,9 +39,13 @@ through these two points.
 
 Briefly justify your algorithm's correctness and derive its running time.  ({\bf
 Hint:} The correctness proof involves a case analysis.  Please be careful, a
-poorly drawn figure may lead to an incorrect hypothesis.)
+poorly drawn figure may lead to an incorrect hypothesis.) \\
 
-\section*{Problem 2 (20 points)}
+\answer
+
+
+\newpage
+\section*{Problem 2}
 
 Consider a set $P = \{p_1, \ldots, p_n \}$ of points in the plane, where $p_i =
 (x_i, y_i)$. A \emph{Pareto set} for $P$, denoted $\pareto{P}$, (named after
@@ -51,78 +53,172 @@ the Italian engineer and economist Vilfredo Pareto), is the smallest subset of p
 such that for all $p_i \in P$ there exists a $p_j \in \pareto{P}$ such that $x_i \leq x_j$ and
 $y_i \leq y_j$.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.75\textwidth]{pareto}
-    \caption{Problem 2: Pareto set}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=0.75\textwidth]{pareto}
+%    \caption{Problem 2: Pareto set}
+%\end{figure}
 
 Pareto sets and convex hulls in the plane are similar in many respects.  In
 this problem we will explore some of these connections.
 
 \begin{enumerate}
 
-\item (5 points) A point $p$ lies on the convex hull of a set $P$ if and only if there is
+\item A point $p$ lies on the convex hull of a set $P$ if and only if there is
 a line passing though $p$ such that all the points of $P$ lie on one side of
 this line.  Provide an analogous assertion for the points of $\pareto{P}$ in
 terms of a different shape.
 
-\answer
-Our goal is to provide some geometric condition that conveys whether a point is a member of $\pareto{P}$.
-For the convex hull, a point $p$ was on the convex hull of a set $P$ if and only if there is a line passing through $p$ such that all points of $P$ lie on one side of the line.
-This is equivalent to requiring that there exists a half plane (with $p$ on the line defining the half plane) such that all points in $P$ are on one side of the half plane.
-For the $\pareto{P}$, we have a similar requirement with a ``quarter'' plane.
-Consider a plane with $p$ at the origin and axes in the regular directions.
-Then $p$ is in $\pareto{P}$ if and only if no points in $P$ are inside (or on the border) of the first quadrant of the plane centered at $p$.
-If $p$ is in the $\pareto{P}$ then no point $p'$ has both $x' \geq x$ and $y' \geq y$ so no values can be in the first quadrant.
-Proving the converse (via contrapositive), if some point $p'$ is inside the first quadrant, then both $x' \geq x$ and $y' \geq y$ so $p$ cannot be in $\pareto{P}$.
-
-\item (5 points) Devise an analogue of Graham's convex-hull algorithm for computing
+\item Devise an analogue of Graham's convex-hull algorithm for computing
 \pareto{P} in $O(n \log n)$ time.  Briefly justify your algorithm's correctness
 and derive its running time.  (You do not need to explain the algorithm ``from
 scratch'', that is, you can explain with modifications would be made to Grahm's
 algorithm.)
 
-\answer
-First we give a quick description of the algorithm (relative to Graham's Scan).
-Instead of sorting the points in increasing order (like Graham's Scan), sort them in decreasing order according to their $x$ coordinate: $P = \{ p_1, p_2, ..., p_n \}$ where $i < j$ implies $x_i > x_j$.
-Then push $p_1$ on to the stack $S$.
-Then for $i$ from $2$ to $n$, if $y_i \geq S[top]_y$ (where $S[top]_y$ is the $y$ coordinate of the point $S[top]$) then push $p_i$ to the stack.
-
-Now let's analyze the runtime.
-The sorting step takes $O(n \log n)$ time and then we do a scan through all the data points in $O(n)$ time.
-So the total run time for this algorithm is $O(n \log n) + O(n) = O(n \log (n) + n) = O(n \log n)$.
-
-Now we give a discussion of correctnes.
-Post sorting, we know $p_1 \in \pareto{P}$ by the following line of reasoning.
-The definition of $\pareto{P}$ is the smallest subset of points such that for all $p_i \in P$ there exists a $p_j \in \pareto{P}$ such that $x_i \leq x_j$ and $y_i \leq y_j$.
-The point $p_1$ is the point with the largest $x$ coordinate, so if $p_1 \notin \pareto{P}$ then there would be no point in $\pareto{P}$ with a larger $x$ coordinate.
-Similarly, the point with the largest $y$ coordinate is also in $\pareto{P}$; we will use this fact in the next paragraph.
-
-Now let $P_i = \{ p_1, p_2, ..., p_i \}$.
-We claim that after attempting to insert $p_i$ to $S_i$ (the stack at iteration $i$), the stack $S_i$ contains $\pareto{P_i}$ and $S[top]$ has the largest $y$ coordinate in $P_i$.
-Consider the base case $P_1 = \{ p_1 \}$ then $\pareto{P_1} = \{ p_1 \}$ which matches $S_1$ since $p_1$ is inserted at the beginning and $S_1[top]$ has the largest $y$ coordinate since there is only one point.
-Now suppose that we have $S_i = \pareto{P_i}$ where $i \in \{ 1, 2, ..., n-1 \}$ and $S_i [top]$ has the largest $y$ coordinate in $P_i$.
-We attempt to prove that $S_{i+1}$ contains $\pareto{P_{i+1}}$.
-Since $P_{i+1} = P_i \cup \{ p_{i+1} \} $ and $S_{i+1}$ at least contains $\pareto{P_i}$ we need only check $p_{i+1}$.
-We already know $p_{i+1}$ is the furthest left point we have considered.
-Therefore, if $y_{i+1} < S[top]_y$ then $S[top]$ is a point that prevents $p_{i+1}$ from being in $\pareto{P_{i+1}}$.
-If $y_{i+1} \geq S[top]_y$ then $p_{i+1}$ has the largest $y$ coordinate so $p_{i+1} \in \pareto{P}$.
-The algorithm matches these actions by inserting or not inserting $p_{i+1}$ into $S_{i+1}$.
-Then when the algorithm terminates we have $\pareto{P}$.
-
-\item (5 points) Devise an analogue of the Jarvis march algorithm for computing
+\item Devise an analogue of the Jarvis march algorithm for computing
 $\pareto{P}$ in $O(h \cdot n)$ time, where $h$ is the cardinality of
 $\pareto{P}$.  (As with the previous part, you can just explain the differences
 with Jarvis's algorithm.)
 
-\item (5 points) Devise an algorithm for computing $\pareto{P}$ in $O(n
+\item Devise an algorithm for computing $\pareto{P}$ in $O(n
 \log h)$ time, where $h$ is the cardinality of $\pareto{P}$.
 
 \end{enumerate}
 
+\answer
+\begin{enumerate}
+    \item Our goal is to provide some geometric condition that conveys whether a point is a member of $\pareto{P}$.
+    For the convex hull, a point $p$ was on the convex hull of a set $P$ if and only if there is a line passing through $p$ such that all points of $P$ lie on one side of the line.
+    This is equivalent to requiring that there exists a half plane (with $p$ on the line defining the half plane) such that all points in $P$ are on one side of the half plane.
+    For the $\pareto{P}$, we have a similar requirement with a ``quarter'' plane.
+    Consider a plane with $p$ at the origin and axes in the regular directions.
+    Then $p$ is in $\pareto{P}$ if and only if no points in $P$ are inside (or on the border) of the first quadrant of the plane centered at $p$.
+    If $p$ is in the $\pareto{P}$ then no point $p'$ has both $x' \geq x$ and $y' \geq y$ so no values can be in the first quadrant.
+    Proving the converse (via contrapositive), if some point $p'$ is inside the first quadrant, then both $x' \geq x$ and $y' \geq y$ so $p$ cannot be in $\pareto{P}$.
 
-\section*{Problem 3 (10 points)}
+    \item First we give a quick description of the algorithm (relative to Graham's Scan).
+    Instead of sorting the points in increasing order (like Graham's Scan), sort them in decreasing order according to their $x$ coordinate: $P = \{ p_1, p_2, ..., p_n \}$ where $i < j$ implies $x_i > x_j$.
+    Then push $p_1$ on to the stack $S$.
+    Then for $i$ from $2$ to $n$, if $y_i \geq S[top]_y$ (where $S[top]_y$ is the $y$ coordinate of the point $S[top]$) then push $p_i$ to the stack.
+    We give the pseudocode below.
+
+    \begin{algorithm}
+    \caption{Computing $\pareto{P}$}
+    \label{alg:paretoscan}
+        \begin{algorithmic}[1]
+        \Function{ParetoScan}{$P$}
+            \State sort $P$ in decreasing order according the x coordinates
+            \State push $p_1$ on to stack S
+            \For{$i \gets 2, 3, ..., n$}
+                \If{$y_i \geq S[top]_y$}
+                    \State push $p_i$ on the $S$
+                \EndIf
+            \EndFor
+            \State \Return $S$
+        \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+
+    Now let's analyze the runtime.
+    The sorting step takes $O(n \log n)$ time and then we do a scan through all the data points in $O(n)$ time.
+    So the total run time for this algorithm is $O(n \log n) + O(n) = O(n \log (n) + n) = O(n \log n)$.
+
+    Now we give a discussion of correctnes.
+    Post sorting, we know $p_1 \in \pareto{P}$ by the following line of reasoning.
+    The definition of $\pareto{P}$ is the smallest subset of points such that for all $p_i \in P$ there exists a $p_j \in \pareto{P}$ such that $x_i \leq x_j$ and $y_i \leq y_j$.
+    The point $p_1$ is the point with the largest $x$ coordinate, so if $p_1 \notin \pareto{P}$ then there would be no point in $\pareto{P}$ with a larger $x$ coordinate.
+    Similarly, the point with the largest $y$ coordinate is also in $\pareto{P}$; we will use this fact in the next paragraph.
+
+    Now let $P_i = \{ p_1, p_2, ..., p_i \}$.
+    We claim that after attempting to insert $p_i$ to $S_i$ (the stack at iteration $i$), the stack $S_i$ contains $\pareto{P_i}$ and $S[top]$ has the largest $y$ coordinate in $P_i$.
+    Consider the base case $P_1 = \{ p_1 \}$ then $\pareto{P_1} = \{ p_1 \}$ which matches $S_1$ since $p_1$ is inserted at the beginning and $S_1[top]$ has the largest $y$ coordinate since there is only one point.
+    Now suppose that we have $S_i = \pareto{P_i}$ where $i \in \{ 1, 2, ..., n-1 \}$ and $S_i [top]$ has the largest $y$ coordinate in $P_i$.
+    We attempt to prove that $S_{i+1}$ contains $\pareto{P_{i+1}}$.
+    Since $P_{i+1} = P_i \cup \{ p_{i+1} \} $ and $S_{i+1}$ at least contains $\pareto{P_i}$ we need only check $p_{i+1}$.
+    We already know $p_{i+1}$ is the furthest left point we have considered.
+    Therefore, if $y_{i+1} < S[top]_y$ then $S[top]$ is a point that prevents $p_{i+1}$ from being in $\pareto{P_{i+1}}$.
+    If $y_{i+1} \geq S[top]_y$ then $p_{i+1}$ has the largest $y$ coordinate so $p_{i+1} \in \pareto{P}$.
+    The algorithm matches these actions by inserting or not inserting $p_{i+1}$ into $S_{i+1}$.
+    Then when the algorithm terminates we have $\pareto{P}$.
+
+    \item Now we give an algorithm similar to the Jarvis march that computes $\pareto{P}$ in $O(h \cdot n)$ time.
+    For this algorithm, we only need to find $h$ points that we know to be in $\pareto{P}$.
+    First we scan through the data set to find the point $p$ with the right-most x coordinate.
+    Then let $p_k$ be the last point added to the pareto.
+    We scan throught the data set to find the point right most point $p_i$ such that $y_i \geq y_k$.
+    We then repeat the previous step $h-1$ times (since we already have one point from step 1).
+    We give the pseudocode below.
+
+    \begin{algorithm}
+    \caption{Computing $\pareto{P}$}
+    \label{alg:paretostairs}
+        \begin{algorithmic}[1]
+        \Function{ParetoStairs}{$P, h$}
+            \State scan $P$ to find right most point $p_1$
+            \State push $p_1$ on to stack S
+            \For{$i \gets 2, 3, ..., h$}
+                \State scan $P$ to find the furthest right $p_j$ such that $y_j \geq S[top]_x$
+                \State push $p_j$ to $S$
+            \EndFor
+            \State \Return $S$
+        \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+
+    As far as run time goes, the algorithm performs $h$ scans of a data set with size $n$ so the run time is $O(h \cdot n)$.
+    Now for correctness, we assume that $|\pareto{P}| = h$ so we need only find $h$ points that must be part of $\pareto{P}$.
+    To show correctness, we will just show that each point added must be the next point in $\pareto{P}$ (sorted in decreasing x coordinates).
+    The first point added (the right most) is certainly in $\pareto{P}$, as discussed before.
+    Now suppose that we have the first $i$ points of the $\pareto{P}$ in decreasing order (the partial pareto).
+    We show that the next point added to the partial is the $i+1$ point in $\pareto{P}$.
+    The next point $p_{i+1}$ we add is the furthest right point in the data set that is above the $p_i$ point (the $i^{th}$ point in the partial).
+    Suppose there were some point $p'$ in the final pareto in between $p_{i+1}$ and $p_i$.
+    Then we must have $x_{i+1} \leq x' \leq x_i$ and $y' \geq y_i$.
+    But this is a contradiction since $p_{i+1}$ is the furthest right point with a y coordinate larger than $y_i$ so $p_{i+1}$ is the next point in the final pareto.
+    Thus, the output of the algorithm is $\pareto{P}$.
+
+    \item We must give an algorithm that computes $\pareto{P}$ in $O(n \log h)$ time where $|\pareto{P}| = h$.
+    In prose, we will break the initial set $P$ down into $n/h$ subsets of maximum size $h$.
+    Then we can find the pareto for each subset using Algorithm \ref{alg:paretostairs}.
+    Finally, we merge the mini paretos into one final pareto.
+    The merging process is somewhat similar to mergesort.
+    Essentially, we will have an index for each mini pareto that increments when we merge that element.
+
+    \begin{algorithm}
+    \caption{Computing $\pareto{P}$}
+    \label{alg:paretochan}
+        \begin{algorithmic}[1]
+        \Function{ParetoChan}{$P, h$}
+            \State break $P$ into $P_1, P_2, ..., P_{n/h}$ such that $|P_i| \leq h$
+            \State compute $\pareto{P_i}$ using Algorithm \ref{alg:paretostairs}, storing each pareto in an array $A_i$
+            \State find $p_1$, the furthest right point of any $A_k[0]$
+            \State push $p_1$ to stack $S$
+            \For{$i \gets 2, 3, ..., h$}
+                \State find $p_j$ the furthest right element in any $A_k$ such that $y_j \geq S[top]_y$
+                \State push $p_j$ to $S$
+            \EndFor
+            \State \Return $S$
+        \EndFunction
+        \end{algorithmic}
+    \end{algorithm}
+
+    We claim the runtime of this algorithm is $O(n \log h)$.
+    Breaking up the subsets takes $O(n)$ time and then computing the pareto of each subset takes $O(h \log h)$.
+    Since there are $n/h$ subsets the entire mini pareto process takes $O(n \log h)$ time.
+    So we are on the right track, as long as we merge quickly enough.
+    Selecting an element to merge takes $O(n/h)$ time since there are $n/h$ mini paretos and we consider one element from each mini pareto.
+    But we must select an element $h$ times so the total merge time is $O(n)$.
+    Therefore, the algorithm runs in $O(n \log h)$ time.
+
+    For correctness, we already know that Algorithm \ref{alg:paretostairs} is correct so we need only show that the merging is correct.
+    The merging process is similar to proving that Algorithm \ref{alg:paretostairs}'s scan finds the next point in the pareto so we defer to the correctness to that proof.
+    %The only thing we need to show is the existence of the next point in the subset that we are considering (recall that we only consider one element from each mini pareto at a time while merging).
+    %To prove this, we only have to remember that each array $A_k$ is also a pareto (sorted by decreasing x coordinates). --- not sure if this is necessary
+
+\end{enumerate}
+
+\newpage
+\section*{Problem 3}
 
 Assume you have an orientation test available which can determine in constant
 time whether three points make a left turn (i.e., the third point lies on the
@@ -162,11 +258,12 @@ Now we can use the lemma to construct an $O(\log n)$ algorithm to find the tange
 \begin{algorithm}
     \caption{Compute tangent lines from $q$ to $P$}
     \begin{algorithmic}
-        \STATE $y \gets 1$
+        \State $y \gets 1$
     \end{algorithmic}
 \end{algorithm}
 
-\section*{Problem 4 (10 points)}
+\newpage
+\section*{Problem 4}
 
 Given a set $S$ of $n$ points in the plane, consider the subsets
 
@@ -179,40 +276,53 @@ Given a set $S$ of $n$ points in the plane, consider the subsets
 %
 until $S_k$ has at most three elements.  Give an $O(n^2)$ time algorithm that
 computes all convex hull $\conv{S_1}, \conv{S_2}, \ldots, S_k$.  [Extra credit,
-provide an algorithm that is faster than $O(n^2)$].
+provide an algorithm that is faster than $O(n^2)$]. \\
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.25\textwidth]{onions}
-    \caption{Problem 4: Onion peeling}
-\end{figure}
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=0.25\textwidth]{onions}
+%    \caption{Problem 4: Onion peeling}
+%\end{figure}
 
-\section*{Tips and Acknowledgements}
+\answer
+To find all $\conv{S_i}$ in $O(n^2)$ time, we use a modified version of Graham's Scan.
+In words, we run Graham's Scan on the data set but keep track of a stack for each $\conv{S_i}$.
+When we pop a set of points off the stack $T_k$ we move the set down to the next stack and
 
-{\bf David Mount's tips for writing up homework solutions}: Whenever you are
-asked to present an ``algorithm,'' you should present three things: the
-algorithm, an informal proof of its correctness, and a derivation of its
-running time.  Remember that your description is intended to be read by a
-human, not a compiler, so conciseness and clarity are preferred over technical
-details.  Unless otherwise stated, you may use any results from class, or
-results from any standard textbook on algorithms and data structures. Also, you
-may use results from geometry that: (1) have been mentioned in class, (2) would
-be known to someone who knows basic geometry or linear algebra, or (3) is
-intuitively obvious. If you are unsure, please feel free to check with me.
+For correctness, a lot of the work is done because we are using Graham's Scan at each level.
+Suppose we have a point $p$ that should end up in $\conv{S_i}$.
+We begin processing the point at level $S_1$, if $i > 1$ then Graham's Scan will not keep $p$.
+Thus it pops $p$ and will eventually push it down a level.
+Since every level is using Graham's Scan, this process will repeat until $p$ encounters the stack for $\conv{S_i}$.
+But we are also using Graham's Scan (which is correct) to find $\conv{S_i}$, so $p$ will remain in the stack for $\conv{S_i}$ for the remainder of the algorithm.
 
-Giving careful and rigorous proofs can be quite cumbersome in geometry, and so
-you are encouraged to use intuition and give illustrations whenever appropriate.
-Beware, however, that a poorly drawn figure can make certain erroneous
-hypotheses appear to be ``obviously correct.''
-
-Throughout the semester, unless otherwise stated, you may assume that input
-objects are in general position. For example, you may assume that no two points
-have the same x-coordinate, no three points are collinear, no four points are
-cocircular. Also, unless otherwise stated, you may assume that any geometric
-primitive involving a constant number of objects each of constant complexity can
-be computed in O(1) time
-
-{\bf Acknowledgements:} Homework problems adapted from assignments of David
-Mount and Carola Wenk.
+% \newpage
+% \section*{Tips and Acknowledgements}
+%
+% {\bf David Mount's tips for writing up homework solutions}: Whenever you are
+% asked to present an ``algorithm,'' you should present three things: the
+% algorithm, an informal proof of its correctness, and a derivation of its
+% running time.  Remember that your description is intended to be read by a
+% human, not a compiler, so conciseness and clarity are preferred over technical
+% details.  Unless otherwise stated, you may use any results from class, or
+% results from any standard textbook on algorithms and data structures. Also, you
+% may use results from geometry that: (1) have been mentioned in class, (2) would
+% be known to someone who knows basic geometry or linear algebra, or (3) is
+% intuitively obvious. If you are unsure, please feel free to check with me.
+%
+% Giving careful and rigorous proofs can be quite cumbersome in geometry, and so
+% you are encouraged to use intuition and give illustrations whenever appropriate.
+% Beware, however, that a poorly drawn figure can make certain erroneous
+% hypotheses appear to be ``obviously correct.''
+%
+% Throughout the semester, unless otherwise stated, you may assume that input
+% objects are in general position. For example, you may assume that no two points
+% have the same x-coordinate, no three points are collinear, no four points are
+% cocircular. Also, unless otherwise stated, you may assume that any geometric
+% primitive involving a constant number of objects each of constant complexity can
+% be computed in O(1) time
+%
+% {\bf Acknowledgements:} Homework problems adapted from assignments of David
+% Mount and Carola Wenk.
 
 \end{document}

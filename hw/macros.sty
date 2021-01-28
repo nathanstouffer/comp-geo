@@ -7,16 +7,23 @@
 \usepackage{listings} % put code in the document
 \usepackage{tikz} % for drawing FSM
 \usepackage{url} % for addresses
-\usepackage{algorithm,algorithmic}
+\usepackage{algorithm,algpseudocode}
 \usetikzlibrary{arrows,automata} % for drawing FSM
 
 \graphicspath{{./}{images/}}
 
-\pagenumbering{gobble}
+%\pagenumbering{gobble}
 
 \newcommand{\R}{\mathbb{R}}
 
-\newcommand{\answer}{{\bf Answer: }}
+\newcommand{\coverpage}[1] {
+	\title{CSCI 534: Homework~#1}
+	\author{Nathan Stouffer}
+	\date{}
+	\maketitle
+}
+
+\newcommand{\answer}{\noindent{\bf Answer: }}
 
 
 \newcommand{\pageHeaderFormat}[1]{
