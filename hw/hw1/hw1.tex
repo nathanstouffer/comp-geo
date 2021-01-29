@@ -42,7 +42,24 @@ Hint:} The correctness proof involves a case analysis.  Please be careful, a
 poorly drawn figure may lead to an incorrect hypothesis.) \\
 
 \answer
+This one as a bit of a doozy, here is our (mine and Elliott's) best shot at an $O(\log n)$ algorithm to compute the common support line between two upper hulls.
+We initialize the points $A = p_2$ and $X = p_{n-1}'$.
+The movements are according to the cases that occur in Figure \ref{fig:cases} and the step size is $\lceil n/2^i \rceil \geq 1$ for the $i^{th}$ iteration.
+We iterate the algorithm $1 + \log n$ times.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{cases}
+    \caption{Cases in our best shot for a $O(\log n)$ algorithm}
+    \label{fig:cases}
+\end{figure}
+
+For correctness, we claim that after $1 + \log n$ iterations the algorithm has terminated on the points that are part of the common support line.
+According to Figure \ref{fig:cases}, if $A,X$ are not on the common support line then the algorithm will step $A,X$ in the correct direction.
+If $A$ or $X$ is on the common support line then the algorithm will step off the final point (which is not good).
+However, it will not land on the support line again in the first $\log n$ steps (since we are summing reciprocoals of powers 2 that are part of a geometric series).
+But we will only be off by one index at the end, so the final iteration will fix it.
+If the algorithm is correct (which is definitely questionable), it will certainly run in $O(\log n)$ time!
 
 \newpage
 \section*{Problem 2}
@@ -229,38 +246,51 @@ counter-clockwise order around $P$ and $q$ is outside of $P$. Give pseudo-code
 to determine the tangents from $q$ to $P$ in $O(\log n)$ time. \\
 
 \answer
-We begin by establishing a lemma about tanget lines in the context of this problem: the line $\overline{qp_k}$ is tangent to $P$ if and only if $sgn(orient(q, p_{k+1}, p_k)) \neq sgn(orient(q, p_k, p_{k-1}))$.
-Going to the right, suppose that the line $\overline{qp_k}$ is tangent to $P$.
-Then the points $p_{k-1}, p_{k+1}$ must be on the same side of $\overline{q p_k}$.
-Then (hopefully) Figure \ref{fig:tangent} is convincing evidence to say that $sgn(orient(q, p_{k+1}, p_k)) \neq sgn(orient(q, p_k, p_{k-1}))$.
+We begin by establishing a lemma about tanget lines in the context of this problem:
+for a point $p_k$ we have $orient(q, p_k, p_{k-1}) > 0$ if and only if $p_k$ is on the inside of the tangent cone.
+For visual evidence, view Figure \ref{fig:orient}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.75\textwidth]{tangent}
-    \caption{Line $\overline{q p_k}$ is tangent to $P$}
-    \label{fig:tangent}
-\end{figure}
-
-Now going to the left, we will show the contrapositive.
-Suppose that $sgn(orient(q, p_{k+1}, p_k)) = sgn(orient(q, p_k, p_{k-1}))$.
-Here we can say that $p_{k-1}$ and $p_{k+1}$ must lie on opposite sides of the line $\overline{q p_k}$ (Figure \ref{fig:nottangent} depicts an example).
-But then $\overline{q p_k}$ cannot be a tangent line so the contrapositive is shown.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.75\textwidth]{nottangent}
-    \caption{Line $\overline{q p_k}$ is not tangent to $P$}
-    \label{fig:nottangent}
+    \includegraphics[width=0.75\textwidth]{orient}
+    \caption{Showing the orientation on either side of a tangent line}
+    \label{fig:orient}
 \end{figure}
 
 Now we can use the lemma to construct an $O(\log n)$ algorithm to find the tangent lines from $q$ to $P$.
+Looking for the ``left'' tangent (from the perspective of $q$), we want to switch from positive to negative orientation.
+And for the ``right'' tangent, we want to switch from negative to positive orientation.
+Algorithm \ref{alg:tangent} finds the left tanget from $q$ to $P$ and we can use the same algorithm but flipping the inequalities to find the right tangent.
 
 \begin{algorithm}
-    \caption{Compute tangent lines from $q$ to $P$}
-    \begin{algorithmic}
-        \State $y \gets 1$
+    \caption{Compute left tangent line from $q$ to $P$}
+    \label{alg:tangent}
+    \begin{algorithmic}[1]
+    \Function{Tangent}{$q, P$}
+        \State $k \gets 1$
+        \For{$i \gets 1, 2, ..., \lceil \log n \rceil + 1$}
+            \If{$orient(q, p_k, p_{k-1}) = orient(q, p_{k+1}, p_k)$}
+                \State $l \gets p_k$
+                \State {\bf break for}
+            \EndIf
+            \If{$orient(q, p_k, p_{k-1}) > 0$}
+                \State $k \gets (k - \lceil n/2^i \rceil) \mod n$
+            \EndIf
+            \If{$orient(q, p_k, p_{k-1}) < 0$}
+                \State $k \gets (k + \lceil n/2^i \rceil) \mod n$
+            \EndIf
+        \EndFor
+        \State \Return $l$
+    \EndFunction
     \end{algorithmic}
 \end{algorithm}
+
+The run time of Algorithm \ref{alg:tangent} is certainly $O(\log n)$ since the for loop contains only $\lceil \log n \rceil + 1$ iterations.
+For correctness, recall the geometric series argument from problem 1.
+We always move our possible tanget point $p_k$ in the right direction (although we might move it too far).
+However, the converging geometric series will half the distance traveled at each iteration, meaning the step size will eventually decrease to 1 (since we take a ceiling).
+Thus in the worst case, our possible tangent point $p_k$ oscillates around the true value until the final iteration when it will land on the true value.
+If $p_k$ lands on the true value before the final iteration, the for loop breaks and the algorithm returns.
 
 \newpage
 \section*{Problem 4}
