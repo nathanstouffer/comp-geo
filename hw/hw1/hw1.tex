@@ -136,7 +136,7 @@ with Jarvis's algorithm.)
     We attempt to prove that $S_{i+1}$ contains $\pareto{P_{i+1}}$.
     Since $P_{i+1} = P_i \cup \{ p_{i+1} \} $ and $S_{i+1}$ at least contains $\pareto{P_i}$ we need only check $p_{i+1}$.
     We already know $p_{i+1}$ is the furthest left point we have considered.
-    Therefore, if $y_{i+1} < S[top]_y$ then $S[top]$ is a point that prevents $p_{i+1}$ from being in $\pareto{P_{i+1}}$.
+    So, if $y_{i+1} < S[top]_y$ then $S[top]$ is a point that prevents $p_{i+1}$ from being in $\pareto{P_{i+1}}$.
     If $y_{i+1} \geq S[top]_y$ then $p_{i+1}$ has the largest $y$ coordinate so $p_{i+1} \in \pareto{P}$.
     The algorithm matches these actions by inserting or not inserting $p_{i+1}$ into $S_{i+1}$.
     Then when the algorithm terminates we have $\pareto{P}$.
@@ -182,7 +182,7 @@ with Jarvis's algorithm.)
     Then we can find the pareto for each subset using Algorithm \ref{alg:paretostairs}.
     Finally, we merge the mini paretos into one final pareto.
     The merging process is somewhat similar to mergesort.
-    Essentially, we will have an index for each mini pareto that increments when we merge that element.
+    For each mini pareto $A_k$, we have an index $i$ pointing to an element $A_k[i]$ that increments to $i+1$ when we merge the element $A_k[i]$.
 
     \begin{algorithm}
     \caption{Computing $\pareto{P}$}
@@ -190,7 +190,7 @@ with Jarvis's algorithm.)
         \begin{algorithmic}[1]
         \Function{ParetoChan}{$P, h$}
             \State break $P$ into $P_1, P_2, ..., P_{n/h}$ such that $|P_i| \leq h$
-            \State compute $\pareto{P_i}$ using Algorithm \ref{alg:paretostairs}, storing each pareto in an array $A_i$
+            \State compute $\pareto{P_i}$ using Algorithm \ref{alg:paretostairs}, storing each pareto in an array $A_k$
             \State find $p_1$, the furthest right point of any $A_k[0]$
             \State push $p_1$ to stack $S$
             \For{$i \gets 2, 3, ..., h$}
@@ -286,15 +286,53 @@ provide an algorithm that is faster than $O(n^2)$]. \\
 
 \answer
 To find all $\conv{S_i}$ in $O(n^2)$ time, we use a modified version of Graham's Scan.
-In words, we run Graham's Scan on the data set but keep track of a stack for each $\conv{S_i}$.
-When we pop a set of points off the stack $T_k$ we move the set down to the next stack and
+In words, we run Graham's Scan on $S$ but keep track of a stack for each $\conv{S_i}$.
+When we pop a set of points off the stack $T_k$ we move the set down to the next stack and repeat Graham's Scan for the stack $T_{k+1}$.
+Here is the pseudocode.
+
+\begin{algorithm}
+\caption{Computing the onion}
+    \label{alg:onion}
+    \begin{algorithmic}[1]
+    \Function{ComputeOnion}{$S$}
+        \State sort points in increasing order according to $x$
+        \State push $p_1, p_2$ on to the first stack $T_1$
+        \For{$i \gets 3, 4, ..., n$}
+            \State $T \gets T_1$
+            \State $popped \gets Pop(A=[p_i], T)$
+            \While{$popped$ is not empty}
+                \State $T \gets$ the next stack
+                \State $popped \gets Pop(popped, S)$
+            \EndWhile
+        \EndFor
+        \State \Return $T_1, T_2, ..., T_k$
+    \EndFunction
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+    \Function{Pop}{$A[1..k], T$}
+        \State initialize popped list $L$
+        \While{$|T| \geq 2$ and $Orient(A[1], T[top], T[top-1])$}
+            \State append $T[top]$ to $L$ and pop $T[top]$
+        \EndWhile
+        \State push elements of $A$ on to $T$
+        \State \Return $L.reverse()$ // reverse so elements are increasing in $x$
+    \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+We claim the run time of the algorithm is $O(n^2)$.
+The sorting process takes $O(n \log n)$ and we already know Graham's Scan to identify sorted points in $O(n)$ time when we only search for the outer convex hull.
+The maximum number of stacks that we can have is $n/3 = O(n)$ (a bunch of concentric triangles).
+In the very worst case, each Graham's Scan would take $O(n)$ time and there are $O(n)$ scans so identifying the points takes $O(n^2)$ time.
 
 For correctness, a lot of the work is done because we are using Graham's Scan at each level.
 Suppose we have a point $p$ that should end up in $\conv{S_i}$.
 We begin processing the point at level $S_1$, if $i > 1$ then Graham's Scan will not keep $p$.
-Thus it pops $p$ and will eventually push it down a level.
+Thus it eventually pops $p$ and will pushes it down a level.
 Since every level is using Graham's Scan, this process will repeat until $p$ encounters the stack for $\conv{S_i}$.
-But we are also using Graham's Scan (which is correct) to find $\conv{S_i}$, so $p$ will remain in the stack for $\conv{S_i}$ for the remainder of the algorithm.
+Since we are using Graham's Scan to find $\conv{S_i}$, $p$ will never leave the stack for $\conv{S_i}$.
+Thus the algorithm is correct.
 
 % \newpage
 % \section*{Tips and Acknowledgements}
