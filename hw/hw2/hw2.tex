@@ -27,7 +27,7 @@ the DCEL, outputs all neighbors of $v$. \\\\
 \answer
 Here is a quick prose description of the algorithm and the pseudo-code is given below in Algorithm \ref{alg:neighbors}.
 We are given a vertex $v$ in a DCEL and we want to compute the neighbors of $v$.
-We start with an edge pointing at $v$ and then move clockwise around the edges pointing at $v$, adding the origins.
+We start with an edge pointing at $v$ and then move clockwise around $v$, adding the origins of edges pointed at $v$.
 
 \begin{algorithm}
 \caption{Computing the neighbors of $v$}
@@ -78,7 +78,7 @@ DCEL operations you are using. Also please make sure the analysis is detailed
 enough to justify the $O(n)$ runtime clearly. \\\\
 \answer
 Here is a quick description of our algorithm.
-We gain some inspiration from Gauss' Law in physics.
+We gain some inspiration from Gauss's Law in physics.
 At the highest level, we iterate over each face in the DCEL and check if the query point is in the face.
 We know a point is in a face if and only if a ray originating at the point passes through the boundary an odd number of times.
 We know the exact boundary of the face by looping over each edge on the face.
@@ -89,20 +89,20 @@ We also only consider the edges that have a pointer to this face (we ignore the 
     \label{alg:findface}
     \begin{algorithmic}[1]
     \Function{FindFace}{DCEL, $p$}
-        \For{face in DCEL}
-            \State cnt $\gets$ \textsc{CountIntersections}(face, $p$)
+        \For{$face$ in DCEL}
+            \State cnt $\gets$ \textsc{CountIntersections}($face$, $p$)
             \If{cnt $\equiv 1 \mod 2$}
-                \State \Return face
+                \State \Return $face$
             \EndIf
         \EndFor
     \EndFunction
     \end{algorithmic}
 
     \begin{algorithmic}[1]
-    \Function{CountIntersections}{face, $p$}
+    \Function{CountIntersections}{$face$, $p$}
         \State cntr $\gets 0$
         \State $h \gets$ horizontal line passing through $p_y$
-        \For{each edge $e$ incident to face}
+        \For{each edge $e$ incident to $face$}
             \State $l \gets$ line passing through the edge $e$
             \State $x \gets$ $x$ coordinate of the intersection between $h$ and $l$
             \If{$x \geq p_x$ and $x$ is between $e$.orig$_x$ and $e$.twin.orig$_x$}
@@ -115,15 +115,15 @@ We also only consider the edges that have a pointer to this face (we ignore the 
 \end{algorithm}
 
 We claim the run time of this algorithm is $O(n)$.
-On slack, we idenitified that $n$ represents the number of vertices in the DCEL.
-However, it was also noted that the number of edges in an embedded planar graph is $O(n)$.
+On slack, it was idenitified that $n$ represents the number of vertices in the DCEL.
+However, it was also noted that the number of edges in an embedded planar graph is $O(n)$ for $n$ edges.
 In the very worst case, our algorithm would have to process every edge once.
 An edge cannot be processed more than once because each edge is associated with only one face (we are ignoring twins).
 Therefore our run time is $O(n)$.
 
 Now we must show correctness.
 We assume that no vertices in the DCEL share $x$ coordinates and that the point $p$ is entirely inside a face in the DCEL (not a vertex or on an edge).
-We define the parity of a ray $r$ with respect to a polygon $P$ to be the parity of the number of times $r$ crosses the boundary of $P$.
+With respect to a polygon $P$, we define the parity of a ray $r$ to be the parity of the number of times $r$ crosses the boundary of $P$.
 Our algorithm relies on the statement a point $p$ is inside a polygon $P$ if and only if every ray originating at $p$ has odd parity with respect to $P$.
 We take for granted that all rays originating at $p$ have the same parity with respect to $P$.
 Figure \ref{fig:crossings} is quite helpful for illustrating the ideas presented in the following proof.
@@ -146,7 +146,7 @@ Without loss of generality, pick a ray $r$.
 At ``infinity,'' we know $r$ is outside $P$.
 We begin outside and make an odd number of swaps, so we must end up inside $P$.
 
-Therefore, for every face, we only need to pick a ray and compute the parity of the number of crossings.
+Therefore, for every face, we only need to pick a ray and compute its parity parity to determine if the point lies in the face.
 This is exactly what our algorithm does for the ray originating at $p$ and going in the positive $x$ direction!
 
 \newpage
@@ -186,7 +186,7 @@ What items will we be storing?
 Instead of storing the actual circles, we will split each circle into two semi-circles and store the functions that represent them (see Figure \ref{fig:tbfunctions}).
 For a circle $C_i$ represented as $q_i = (x_i, y_i)$ and $r_i > 0$, these two functions will be
 $$ f_i^t (x) = y_i + \sqrt{r_i^2 - (x - x_i)^2} \hspace{2em} f_i^b (x) = y_i - \sqrt{r_i^2 - (x - x_i)^2} $$
-Then we will store both pairs $(f_i^t, i)$ and $(f_i^b, i)$ in the ordered dictionary accoriding to their $y$ value at time $x$ (the time the sweep line is at).
+Then we will store both pairs $(f_i^t, i)$ and $(f_i^b, i)$ in the ordered dictionary according to their $y$ value at time $x$ (the time the sweep line is at).
 Note that the ordered dictionary gives us the operations $search,\, delete,$ and $insert$ in $O(\log k)$ time where $k$ is the number of items in the dictionary.
 
 \begin{figure}[h]
@@ -203,7 +203,7 @@ Note that the ordered dictionary gives us the operations $search,\, delete,$ and
     \item If the event is a left point, insert $(f_i^t, i)$ and $(f_i^b, i)$ into the ordered dictionary (with the top above the bottom) and check for intersections with adjacent items (ignoring each other).
     If there is an intersection, return the indices of the relevant circles.
     \item If the event is a right point, delete $(f_i^t, i)$ and $(f_i^b, i)$ from the ordered dictionary and check for intersections of the items that just became adjacent on the sweep line (the items above/below the ones just deleted).
-    If there is an intersection, return the indices of the relevant circles.
+    If there is an intersection (ignoring intersections of top/bottom functions of the same circle), return the indices of the relevant circles.
     \item If the queue is empty, return NO INTERSECIONS.
     Otherwise go to line 2.
 \end{enumerate}
@@ -221,6 +221,7 @@ Therefore, the whole algorithm takes $O(n \log n)$ time.
 Finally, we prove that the algorithm is correct.
 We assume that there is no intersection at a left or right point (this also implies that no two circles are equal).
 We also assume that no 3 circles intersect at the same point.
+Finally, assume that no two event points occur at the same $x$ coordinate.
 Our proof of correctness relies on a lemma very similar to the line segment intersection.
 
 {\bf Lemma: }
@@ -250,7 +251,23 @@ Other vector graphics tools such asIllustrator and Inkscape are also quite good.
 Setup Ipe \url{http://ipe.otfried.org/}, Illustrator, or Inkscape
 (or another vector graphics tool)
 to create 3 images of the state of the sweep line algorithm
-described in problem 3.
+described in problem 3. \\\\
+\answer
+Here is a figure depicting the sweep line at three different times $t_1, t_2, $ and $t_3$.
+We describe the state of the sweep line below.
+
+\begin{figure}[h]
+   \centering
+   \includegraphics[width=0.3\textwidth]{state1} \hfill
+   \includegraphics[width=0.3\textwidth]{state2} \hfill
+   \includegraphics[width=0.3\textwidth]{state3}
+   \caption{Sweep line at different states}
+   \label{fig:swplnstate}
+\end{figure}
+
+At $t_1$ we insert the top and bottom functions for the green circle into our ordered dictionary and find that there are no neighboring intersections.
+Time $t_2$ removes the blue circle from the ordered dictionary and checks if any new neighboring circles intersect.
+Finally, at time $t_3$, the last circle is inserted into the sweep line data structure and an intersection is found with the circle above it.
 
 % \section*{Tips and Acknowledgements}
 %
