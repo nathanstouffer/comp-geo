@@ -74,7 +74,7 @@ The problem with this is that we can construct input with $\Omega (n)$ islands a
 One such input is a approximately $n/3$ triangles stacked vertically.
 This would result in an $O(n^2)$ algorithm.
 
-To bypass this, note that the width of the river at any point can be modeled as a piecewise-continuous function consisting of linear segments.
+To bypass this, note that the width of the river at any point can be modeled as a piecewise-linear continuous function.
 All we have to do is find the appropriate line segments and perform $O(1)$ operations at each event point.
 With this model, we can reduce what we store on the sweep line.
 All we need is the function representing the current line segment.
@@ -111,7 +111,7 @@ Case 3 depicts how $w_B (x)$ is constructed when the vertex is on the upper part
 \end{figure}
 
 As we consider each event point, we can keep track of the smallest width found so far and the $x$-coordinate that is occurs at.
-In keeping with our piecewise-continuous model for the width of the river let's store them in variables called $min_x$ for the $x$-coordinate and $min_y$ for the width of the river at $min_x$.
+In keeping with our piecewise-linear continuous model for the width of the river let's store them in variables called $min_x$ for the $x$-coordinate and $min_y$ for the width of the river at $min_x$.
 When the sweep terminates, if $min_y < w_{min}$ return $min_x$, otherwise return NO FLOOD.
 
 Before discussing correctness, let's look at run time.
