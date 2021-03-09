@@ -71,7 +71,7 @@ Now we will compute the river width each event point (we will provide a proof th
 
 One way to compute the width at $x^\star$ is to subtract the width of each island on the sweep line at $x^\star$ from the distance between the shoreline $S$.
 The problem with this is that we can construct input with $\Omega (n)$ islands at some $x^\star$.
-One such input is a approximately $n/3$ triangles stacked vertically.
+One such input is approximately $n/3$ triangles stacked vertically.
 This would result in an $O(n^2)$ algorithm.
 
 To bypass this, note that the width of the river at any point can be modeled as a piecewise-linear continuous function.
@@ -158,6 +158,35 @@ $xy$ has been added.
     \caption{Problem 4: Trapezoid Map}
 \end{figure}
 \answer
+After we add segment $xy$, we must add the changes displayed in Figure \ref{fig:dagupdates}.
+Traps $A$ and $G$ lie in case 1 of updating the trap map and traps $C,$ $D,$ and $E$ are in case 3 of updating the trap map.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{dagupdates}
+    \caption{Steps of updating the DAG}
+    \label{fig:dagupdates}
+\end{figure}
+
+\newpage
+Figure \ref{fig:updatedtrapmap} shows the updated trap map.
+Notice that vertical border (originating from a point) extends beyond any line segment.
+The DAG that represents the trap map must reflect this.
+The final DAG to represent the trap map after segment $xy$ has been inserted is displayed in Figure \ref{fig:updateddag}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{updatedtrapmap}
+    \caption{Depicting the updated Trap Map}
+    \label{fig:updatedtrapmap}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{updateddag}
+    \caption{Depicting the updated DAG}
+    \label{fig:updateddag}
+\end{figure}
 
 \newpage
 \section*{Problem 5}
@@ -165,14 +194,14 @@ $xy$ has been added.
 Consider the following algorithm:
 
 \begin{verbatim}
-    FindMax(A,n){
+    FindMax(A, n) {
         // Finds maximum in set A of n numbers
-        if(n==1) return the single number in A
+        if (n == 1) return the single number in A
         else {
             x = extract random element from A // in constant time; x is removed from
             A
-            y = FindMax(A,n-1)
-            if(x<=y) return y;
+            y = FindMax(A, n-1)
+            if (x <= y) return y;
             else
             Compare x with all remaining elements in A and return the maximum
         }
@@ -190,5 +219,51 @@ Consider the following algorithm:
 
 \end{enumerate}
 \answer
+
+\begin{enumerate}
+
+\item Let's begin by proving the correctness of this algorithm.
+We assume that when FindMax($A, n$) is called for a set $A \subset \R$ where $|A| = n$.
+We will proceed by induction on $n$.
+For the base case, take $n = 1$.
+Here, the set $A$ is a singleton and the maximum of a singleton is the element.
+The algorithm FindMax returns the only element when $n=1$ so it must return the max.
+Thus FindMax is correct when $n=1$.
+
+Now suppose, for some natural number $k \in \mathbb{N}$, that FindMax($A, k$) correctly returns the maximum value of the set $A$.
+We will prove that FindMax($A \cup \{ a \}, k+1$) correctly returns the maximum of the set $A \cup \{ a \}$ for $a \in \R$.
+Since $k$ is a natural number, $k+1 > 1$ so we must enter the else statement.
+Then we extract some $x$ from $A \cup \{ a \}$ and store whatever is returned from FindMax($A \cup \{ a \} \setminus \{ x \}, k$) in $y$.
+Since $ A \cup \{ a \} \setminus \{ x \}$ has cardinality $k$, we know (by supposition) that $y$ is the maximum value of $A \cup \{ a \} \setminus \{ x \}$.
+Then if $y \geq x$, we have $y = \max (A \cup \{ a \})$ which matches the behavior of the algorithm.
+Otherwise, the algorithm compares each remaining element with $x$ and returns the max.
+This is certainly correct for if $x > y$ then $x$ is the maximum value of $A \cup \{ a\}$ and that line will return $x$.
+
+Thus the algorithm is proved correct for any $n$ by induction.
+Let's now discuss the worst case run time.
+In the worst case, we have to compare $x$ with the remaining elements in every call to FindMax.
+We should note that the algorithm consists of making exactly $n$ calls to FindMax.
+Thus to compute the run time, we don't have to build a recurrence, we can just count the number of comparisons made on an aribitrary call to FindMax and then sum those values for $n= \{ 1, 2, ..., n \}$.
+Let $T(n)$ denote the number of comparisons made in the (worst case) call to FindMax($A, n$).
+If $n = 1$, then $T(1) = 1$.
+If $n > 1$, then $T(n) = 1 + 1 + (n-2) = n$.
+Thus the total number of comparisons is $\sum _{k=1}^n k$ which is known to equal $n(n+1)/2 = O(n^2)$.
+Since the algorithm runs in time proportional to the number of comparisons, the run time is $O(n^2)$.
+
+\item Now let's compute the expected run time over all permutations of the elements of $A$.
+On the call FindMax($A, i$), we must compare $x$ with all the remaining elements with probabilty $1/i$.
+Let $k_i$ denote the number of comparisons made when we call FindMax($A, i$).
+Also let
+\[ \delta _i =
+\begin{cases}
+    1 & \text{if the bad else statement runs on the $i^{th}$ call} \\
+    0 & \text{otherwise}
+\end{cases}
+\]
+Then $k_i = 1 = O(i)$ when $i = 1$ and $k_i = 1 + 1 + \delta_i (i - 2) = 2 \delta _i (i-2) \leq 2 + i - 2 = i = O(i)$ otherwise.
+The expected value is $E[k_i] = 1/i * O(i) = O(1)$ so we expect to have a constant number of comparisons for an arbitrary value of $i$.
+Since we make $n$ calls to FindMax, this gives an expected run time of $n * O(1) = O(n)$.
+
+\end{enumerate}
 
 \end{document}
