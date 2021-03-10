@@ -15,11 +15,64 @@
 \newpage
 \section*{Problem 1}
 
-Given an polygonal chain $P$ of $n$ vertices, we define an vertex $v$ as a
+Given a polygonal chain $P$ of $n$ vertices, we define a vertex $v$ as a
 \emph{local max} if $v$ if all edges adjacent to $v$ are to the left of $v$.
-Show that can determine if a polygonal chain with $k$ local maxes is simple in
+Show that we can determine if a polygonal chain with $k$ local maxes is simple in
 $O(n \log k)$ time. \\\\
 \answer
+First let's present some definitions and assumptions.
+A polygonal chain is a collection of line segments joined end to end.
+A polygonal chain is simple if no segments intersection.
+For general position assumptions, we assume that no two segment end points have the same x coordinate.
+
+To solve this problem, we ended up coming up with a solution very similar to the line segment intersection sweep line algorithm.
+A quick description of our algorithm would say that we use the line segment intersection algorithm except that we only need to sort $O(k \log k)$ event points and we know the number of segments in the sweep line data structure is $O(k)$.
+Every vertex will be an event point so there are $n$ events in total.
+
+The algorithm will begin by breaking $P$ into $x$-monotone chains that are contiguous in $P$.
+We claim that there are $O(k)$ $x$-monotone chains in $P$.
+For proof, note that between any two ``neighboring'' local maxes (the next local max traveling along $P$), there can be only one turn to the right.
+If not, the two local maxes would not be neighbors.
+Since there is only one right turn, we split the chain at the turn and we are left two $x$-monotone chains to the neighboring local maxes.
+This produces $O(k)$ chains.
+There are some edge cases with local maxes near the end of the chain, but they are constant in number and can be wrapped up into the big-O.
+
+With this decomposition $X_1, X_2, ..., X_j$ of $P$ in mind, we can label our three types of event points.
+Type I: segment beginning an $x$-montone chain $X_i$.
+Type II: vertex ending an $x$-monotone chain $X_i$.
+Type III: other segments in the chain.
+Note that each event of type I and II has a subsequent event along the $x$-monotone chain.
+We will use a heap implementation of a min-priority queue (with the $x$ coordinate as the key) for our event queue.
+For our sweep line data structure, we will use an ordered dictionary that gives us operations in $O(\log m)$ time (where $m$ is the number of items in the dictionary).
+
+\begin{enumerate}
+    \item Break $P$ into $O(k)$ $x$-monotone chains (contiguous in $P$)
+    \item Insert each Type I into the event queue
+    \item Pop the event $e$ from the queue. \\
+        If Type I or III: insert segment into sweep line state, test for intersections with the segment's neighbors on the sweep line.
+        If we find an intersection, return NOT SIMPLE.
+        Then insert the subsequent event (along the $x$-monotone chain) into the event queue. \\
+        If Type II: delete the segment from the sweep line state, test for instersctions of the new neighbors on the sweep line.
+    \item If the event queue is nonempty, return to line 3.
+    \item return SIMPLE
+\end{enumerate}
+
+We feel that much of the correctness of this algorithm is justified by the correctness of the line segment intersection sweep line algorithm.
+The only part that needs justification is that not all vertex end points need to be in the event queue at the same time.
+This is true because each vertex is part of an $x$-monotone chain.
+If we are considering some vertex $x_i$, the next vertex $x_{i+1}$ certainly cannot affect the sweep line at the current state for the segment it corresponds to is entirely to the right of the area we are considering.
+
+Let's justify the run time as $O(n \log k)$.
+We have already shown that we decompose $P$ into $O(k)$ $x$-monotone chains.
+Since the number of Type I events is the same as the number of $x$-monotone chains, step 2 inserts $O(k)$ events into the queue.
+A heap with $O(k)$ items provides operations in $O(\log k)$ time, thus step 2 takes $O(k \log k)$ time.
+We claim step 3 takes $O(\log k)$ time.
+Editing the event queue takes $O(\log k)$ time and the number of items in the sweep line state is $O(k)$ for we can only have one segment from each monotone chain.
+Then operations on the sweep line state take $O(\log k)$ time, thus giving us $O(\log k)$ time for step 3.
+Step 4 has us repeat step 3 as many times as we have events.
+However we already noted that there are $n$ events (giving $O(n \log k)$ for steps 3 and 4 combined).
+Then step 5 is constant.
+This sums to give a total run time of $O(n \log k)$.
 
 \newpage
 \section*{Problem 2}
@@ -52,8 +105,7 @@ sum of vertical lengths (excluding islands) is the smallest. \\\\
 \answer
 This problem ended up have a very clean solution which we liked a lot!
 We settled on a sweep line algorithm.
-We got our inspiration from the original sweep line algorithm that we learned about: line segement intersection.
-Although all we care about is whether a polygon (island) is on the sweep line or not, so we can ignore its neighbors.
+All we care about is whether a polygon (island) is on the sweep line or not, so we can ignore its neighbors.
 This means we do not have to maintain an ordered dictionary as our sweep line data structure, instead we can use an array with constant time access!
 
 Before giving a description of the algorithm, let's discuss some assumptions.
@@ -65,7 +117,7 @@ Now we describe the algorithm.
 For input, our algorithm will take in the array representing the shore $S$ and the arrays representing each island $I_i$ together with the values $w^-$, $w^+$, and $w_{min}$.
 As noted before, the vertices become the event points.
 We have two types of event points: one that contains a vertex of $S$ and another which contains a vertex of some $I_i$.
-So we sort the events according to their $x$-coordinates and store the result in a queue.
+We sort the events according to their $x$-coordinates and store the result in a queue.
 There will not be any more event points so a regular queue will suffice.
 Now we will compute the river width each event point (we will provide a proof that considering the vertices is sufficient).
 
@@ -74,9 +126,9 @@ The problem with this is that we can construct input with $\Omega (n)$ islands a
 One such input is approximately $n/3$ triangles stacked vertically.
 This would result in an $O(n^2)$ algorithm.
 
-To bypass this, note that the width of the river at any point can be modeled as a piecewise-linear continuous function.
+To bypass this, note that the width of the river is a piecewise-linear continuous function.
 All we have to do is find the appropriate line segments and perform $O(1)$ operations at each event point.
-With this model, we can reduce what we store on the sweep line.
+With this model, we can reduce the amount of information we store on the sweep line.
 All we need is the function representing the current line segment.
 We don't even need to store what islands the sweep line is intersecting because we can determine the event type just by inspecting which polygon a point comes from!
 
@@ -86,6 +138,7 @@ Figure $\ref{fig:basecase}$ also depicts the function representing the first lin
 The top line has slope $s_1$ and the bottom line has slope $s_2$.
 Certainly we begin with width $w^-$ and then for any $x$ beyond $x_0$ we can add $s_1 x$ and subtract $s_2 x$ to obtain the width at $x$.
 The function $w_A (x)$ accurately reports the width on the inteval $[x_0, x^\star]$ where $x^\star$ is the $x$-coordinate of the next event point.
+Thus we have a linear function to represent the first line segment.
 
 \begin{figure}[h]
     \centering
@@ -98,7 +151,7 @@ At $x^\star$, the $x$-coordinate of the next event point, we can enter one of fo
 In case 1, the event contains a vertex from $S$ the shore line.
 Case 1 in Figure \ref{fig:updateswp} depicts how $w_A(x)$ transforms into $w_B(x)$ if the vertex is part of the upper shoreline.
 An analagous operation occurs for the lower shoreline.
-The remaining 3 cases show what happens if the even contains a vertex from an island $I_i$.
+The remaining 3 cases show what happens if the event contains a vertex from an island $I_i$.
 We can determine which case to enter by inspecting the neigboring points of the vertex in $I_i$.
 Case 2 covers what to do when an island begins and Case 4 shows what happens when an island ends.
 Case 3 depicts how $w_B (x)$ is constructed when the vertex is on the upper part of an island and there is analogous operation when the vertex is on the lower part of an island.
@@ -121,7 +174,16 @@ The next big step is to process the $n$ events.
 In every case, we perform a constant number of operations so the run time for this step is $n * O(1) = O(n)$.
 Therefore the entire run time is $O(n \log n) + O(n) = O(n \log n)$ as desired.
 
-TODO: prove correctness
+The correctness of the updates to the slope is proved in Figure \ref{fig:updateswp}.
+However, we do need to show that the minimum must lie at one of the vertices.
+Let's continue with the piecewise-linear continuous representation of the width.
+Then vertices are the only places where the slope changes.
+Suppose the minimum occurs at $x^\star$ a value that is not a vertex.
+Then the slope does not change at $x^\star$.
+But if the slope is not changing, we can travel in a direction (either positive or negative) that decreases the value of the width, a contradiction.
+The previous statement excludles segments with slope 0.
+If this is the case then the slope is 0 for the whole segment and we will detect it at the vertex.
+Thus we only need to concsider vertices as event points.
 
 \newpage
 \section*{Problem 3}
@@ -143,6 +205,23 @@ TODO: prove correctness
 
 \end{enumerate}
 \answer
+\begin{enumerate}
+    \item The paper that I looked at can be found at
+    \url{https://dl.acm.org/doi/pdf/10.1145/355759.355766?casa_token=rLrtzRrif4kAAAAA%3AU9g3Xil8GMLkRECw4Whv-ZvLYPSrHypLUS_VL75ycErIk3aTX-4miYMcq7VI5flJPiJwT-zeg130lhw}.
+    It was originally published in 1977 by William F. Eddy of Carnegie-Mellon University.
+    It works by finding the farthest left and right points of the data set and drawing a line between them.
+    Then it processes each point to find the furthest point on each side of the line.
+    WLOG, select a side.
+    The three points (the line endpoints and the furthest point from the line) form a triangle.
+    Any points inside the triangle can be eliminated and then the algorithm is called recursively on the remaining points on the right or left of the furthest point.
+    Additionally, the points form an incremental hull for the data seen so far.
+    The $\log$ factor arrives because a random distribution of points will remove half of the points in expectation.
+
+    \item This algorithm has a loophole in that if the points are distributed along a circle it will take $O(n^2)$ time for any order of points.
+    This is because no points will lie in any inscribed triangle of the circle.
+    I am just realizing that this algorithm is not really a randomized incremental construction but it is close to the deadline so I'm sticking with what I've got!
+\end{enumerate}
+
 
 \newpage
 \section*{Problem 4}
@@ -198,7 +277,8 @@ Consider the following algorithm:
         // Finds maximum in set A of n numbers
         if (n == 1) return the single number in A
         else {
-            x = extract random element from A // in constant time; x is removed from
+            x = extract random element from A
+            // in constant time; x is removed from
             A
             y = FindMax(A, n-1)
             if (x <= y) return y;
@@ -260,7 +340,7 @@ Also let
     0 & \text{otherwise}
 \end{cases}
 \]
-Then $k_i = 1 = O(i)$ when $i = 1$ and $k_i = 1 + 1 + \delta_i (i - 2) = 2 \delta _i (i-2) \leq 2 + i - 2 = i = O(i)$ otherwise.
+Then $k_i = 1 = O(i)$ when $i = 1$ and $k_i = 1 + 1 + \delta_i (i - 2) = 2 + \delta _i (i-2) \leq 2 + i - 2 = i = O(i)$ otherwise.
 The expected value is $E[k_i] = 1/i * O(i) = O(1)$ so we expect to have a constant number of comparisons for an arbitrary value of $i$.
 Since we make $n$ calls to FindMax, this gives an expected run time of $n * O(1) = O(n)$.
 
