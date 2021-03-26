@@ -54,8 +54,8 @@ three cycles. The vertices are shown as white dots).
     But because of the page break, let's analyze run time here.
     Line 1 takes $O(1)$ time and computing the Voronoi diagram of $n$ sites on line 2 takes $O(n \log n)$ time.
     Each iteration of the for loop takes $O(1)$ time and there are $O(n)$ iterations of the for loop since the Voronoi diagram is a planar graph with $n$ faces $\implies$ the number of edges is $O(n)$.
-    Thus the run time is dominated by the $O(n \log n)$ term. 
-    
+    Thus the run time is dominated by the $O(n \log n)$ term.
+
     Now let's talk about correctness.
     The correctness of the algorithm is proven by the following two lemmas.
     First, boundary vertices must be on a Voronoi edge.
@@ -71,7 +71,7 @@ three cycles. The vertices are shown as white dots).
     It does!
     For since the point is on a Voronoi edge its closest points (which are distance 1) must be the sites of the adjacent faces.
     Thus any other points are strictly further away than distance 1 and the point lies on the boundary of the circle.
-    
+
     \begin{algorithm}
     \caption{Compute vertices}
     \label{alg:boundaryvertices}
@@ -89,7 +89,7 @@ three cycles. The vertices are shown as white dots).
     \EndFunction
     \end{algorithmic}
     \end{algorithm}
-    
+
     \item Now we need to show that the number of vertices reported from the algorithm is $O(n)$.
     This falls out nicely from our algorithm.
     We know the Voronoi diagram to have $n$ sites which means there are $O(n)$ edges.
@@ -101,7 +101,8 @@ three cycles. The vertices are shown as white dots).
 
 Suppose we are given a subdivision of the plane into $n$ convex regions. We
 suspect that this subdivision is a Voronoi diagram, but we do not know the
-sites. Develop an algorithm that finds a set of $n$ point sites whose Voronoi diagram is exactly the given subdivision, if such a set exists. \\\\
+sites. Develop an algorithm that finds a set of $n$ point sites whose Voronoi
+diagram is exactly the given subdivision, if such a set exists. \\\\
 
 \answer
 So we are given a subdivision of the plane into convex regions and we wish to report a set of $n$ sites whose Voronoi diagram is the subdivision (if it possible).
@@ -157,19 +158,56 @@ As a gross upper bound for the for loop, it can run at most $E$ times where $E$ 
 Since a DCEL represents a planar graph, $E = O(n)$ so our algorithm runs in $N * O(n) = O(n^2)$ time.
 
 And now for correctness!
+We again suppose that we have a point $p$ in some face $f$ that must be a site if the subdivision is a Voronoi diagram.
+Our algorithm just runs through the edges and reflects sites.
+If the algorithm terminates and there were no conflicts, then we have a set of sites that will produce a Voronoi diagram that is the subdivision.
+However, if a conflict ocurrs, then the edge that was reflected across was not a perpindicular bisector for the sites of the cells and the subdivision is not a Voronoi diagram.
+
+We must now answer the question: how do we find $p$?
+First we introduce a change in perspective.
+Consider a vertex of the subdivsion.
+By general position this is of degree three or less.
+Further, the vertex must be of degree three for a degree two vertex would result in a non-convex subdivision.
+Take the vertex to be our 0 and then consider the outgoing edges to be polar rays defined by an angle in $[0, 2 \pi)$.
+Figure \ref{fig:solvingphi} (A) gives an example.
+For a point to be a site, we must be able to reflect its ray ``around'' a vertex and end up at the same point.
+Figure \ref{fig:solvingphi} (B) shows us starting with an angle $\phi$ and reflecting around the vertex to end up at $\phi'''$.
+Reflect rays is quite easy in polar, just add twice the difference!
+\begin{align*}
+    \phi ' &= \phi + 2(\theta _1 - \phi) = 2 \theta _1 - \phi \\
+    \phi '' &= \phi' + 2(\theta _2 - \phi ') = 2 \theta _2 - \phi' \\
+    \phi ''' &= \phi'' + 2(\theta _3 - \phi '') = 2 \theta _3 - \phi''
+\end{align*}
+For $\phi$ to be the ray that the site lies on, we must have $\phi + 2 \pi = \phi'''$.
+Then substituting in our equations above, we find that $\phi = \theta _3 - \theta _2 + \theta _1 - \pi$.
+This gives us a fixed ray that the site must lie on!
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\textwidth]{solvingphi}
-    \label{fig:solvingphi}
     \caption{Solving for $\phi$}
+    \label{fig:solvingphi}
 \end{figure}
+
+\newpage
+We then enter one of two cases.
+Case 1: every edge in the subdivision extends off to infinity.
+In this case, we can select any point on the ray as our initial site.
+This is depicted in the left of Figure \ref{fig:site}.
+Case 2: there exists some finite edge.
+In this case, there is more work to be done.
+Let $e$ be a finite edge.
+Then we can solve for the ray originating on either end of the edge and compute where they intersect.
+This is the unique point in the face that must be the site.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.6\textwidth]{site}
-    \label{fig:site}
     \caption{Computing the site}
+    \label{fig:site}
 \end{figure}
+
+Thus we can always compute our initial point $p$ and run the algorithm.
+Note that this takes $O(1)$ time, so it does not affect our run time analysis.
 
 \end{document}
