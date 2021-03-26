@@ -74,7 +74,7 @@ We are going to start at $p$ and reflect it across each edge of the face $k$.
 If $p$ is a site in a voronio diagram, its reflection across an edge must also be a site.
 We record every reflected point in an array and add faces to a processing queue as we come across them (note each face can only be added once).
 If we ever find that a newly reflected point conflicts with a point already found in that face, we know that the subdivision is not a voronoi diagram.
-We now present the algorithm.
+We now present the algorithm in pseudocode.
 
 \begin{algorithm}
 \caption{Computing the Voronoi Sites}
@@ -97,10 +97,19 @@ We now present the algorithm.
                 \EndIf
             \EndFor
         \EndWhile
-        \State \Return $S$
+        \State \Return S
     \EndFunction
     \end{algorithmic}
 \end{algorithm}
+
+Let's discuss run time.
+As noted in the prose description, each face can only be added to the processing queue once.
+This is because once a face is in the queue, it's value in S is no longer null.
+Thus the while loop runs $n$ times: once for each face.
+As a gross upper bound for the for loop, it can run at most $E$ times where $E$ is the number of edges in the DCEL.
+Since a DCEL represents a planar graph, $E = O(n)$ so our algorithm runs in $N * O(n) = O(n^2)$ time.
+
+And now for correctness!
 
 \begin{figure}[h]
     \centering
