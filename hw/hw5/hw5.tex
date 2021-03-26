@@ -48,13 +48,60 @@ three cycles. The vertices are shown as white dots).
 
 \end{enumerate}
 
+\answer
+\begin{enumerate}
+    \item The pseudocode is given in Algorithm \ref{alg:boundaryvertices}.
+    But because of the page break, let's analyze run time here.
+    Line 1 takes $O(1)$ time and computing the Voronoi diagram of $n$ sites on line 2 takes $O(n \log n)$ time.
+    Each iteration of the for loop takes $O(1)$ time and there are $O(n)$ iterations of the for loop since the Voronoi diagram is a planar graph with $n$ faces $\implies$ the number of edges is $O(n)$.
+    Thus the run time is dominated by the $O(n \log n)$ term. 
+    
+    Now let's talk about correctness.
+    The correctness of the algorithm is proven by the following two lemmas.
+    First, boundary vertices must be on a Voronoi edge.
+    Suppose we have a boundary vertex, it must be distance 1 between two different sites.
+    This is exactly the property that edges of Voronoi diagrams possess so the vertex lies on a Voronoi edge.
+    Second, a point on an Voronoi edge is a vertex iff the distance to the site on the left face is 1 (Voronoi properties imply the distance to the site on the right is also 1).
+    Going to the left, suppose we have a point on the edge that is a boundary vertex.
+    Since the point is on a Voronoi edge, it is equidistant to its two sites.
+    Further, since the point is a boundary vertex it is distance 1 to the sites.
+    Now going to the right, suppose we have a point on a Voronoi edge that is distance 1 to site on its left face.
+    Since the point is on the edge, it is equidistant between the two sites and distance 1 implies that the point lies on a circle border.
+    Now the question is, does the point lie on the boundary of the union?
+    It does!
+    For since the point is on a Voronoi edge its closest points (which are distance 1) must be the sites of the adjacent faces.
+    Thus any other points are strictly further away than distance 1 and the point lies on the boundary of the circle.
+    
+    \begin{algorithm}
+    \caption{Compute vertices}
+    \label{alg:boundaryvertices}
+    \begin{algorithmic}[1]
+    \Function{Boundary Vertices}{$C$, $D$}
+        \State P $\gets$ empty list
+        \State Compute the Voronoi diagram using the circle centers as sites
+        \For{each edge $e$ in the Voronoi diagram}
+            \State R $\gets$ circle of radius 1 centered at either site closest to $e$
+            \If{edge $e$ intersects circle R}
+                \State add intersection point(s) to P
+            \EndIf
+        \EndFor
+        \State \Return P
+    \EndFunction
+    \end{algorithmic}
+    \end{algorithm}
+    
+    \item Now we need to show that the number of vertices reported from the algorithm is $O(n)$.
+    This falls out nicely from our algorithm.
+    We know the Voronoi diagram to have $n$ sites which means there are $O(n)$ edges.
+    Each edge can produce a maximum of 2 points on the boundary (since it is a straight line segment intersecting a circle) so the number of points produced is $2*O(n) = O(n)$ as desired.
+\end{enumerate}
+
 \newpage
 \section*{Problem 2}
 
 Suppose we are given a subdivision of the plane into $n$ convex regions. We
 suspect that this subdivision is a Voronoi diagram, but we do not know the
-sites. Develop an algorithm that finds a set of $n$ point sites whose Voronoi
-diagram is exactly the given subdivision, if such a set exists. \\\\
+sites. Develop an algorithm that finds a set of $n$ point sites whose Voronoi diagram is exactly the given subdivision, if such a set exists. \\\\
 
 \answer
 So we are given a subdivision of the plane into convex regions and we wish to report a set of $n$ sites whose Voronoi diagram is the subdivision (if it possible).
