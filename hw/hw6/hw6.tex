@@ -1,0 +1,102 @@
+\documentclass[11pt]{article}
+
+% set these commands
+\newcommand{\course}{CSCI 534}
+\newcommand{\proj}{Homework 06}
+\newcommand{\dueDate}{2021-04-22}
+\newcommand{\instructor}{David L. Millman}
+
+\usepackage{../macros}
+
+\newcommand{\A}{{\mathcal{A}}}
+
+\begin{document}
+
+
+\coverpage{06}
+
+
+\vspace{1em}
+
+This homework assignment occurs at the same time as the course project.  These
+questions should take substantially less time then the first five assignments.
+While I invite you to spend as much time on these problems as you like, I do not
+expect you to spend any more than 3 hours on the entire assignment so that you
+can focus on your projects.
+
+\newpage
+\section*{Problem 1}
+
+We saw in class that the Voronoi diagram of a set of points in $\R^2$ is the
+projection of the upper envelope of the dual lifted set of planes in $\R^3$.
+What does the projection of the lower envelope correspond to? Similarly, what
+does the projection of the upper convex hull of the points lifted to $\R^3$
+correspond to?
+
+You MAY (but do not need to) answer these questions by researching on the
+internet. Cite the sources you were using and give an explanation in your own
+words
+
+\newpage
+\section*{Problem 2}
+
+We saw in class how to solve motion planning problems in $\R^2$ in a static
+environment of polygonal obstacles by computing the configuration space with
+Minkowski sums.  While theoretically interesting, often, explicitly computing
+the configuration space is too computationally intensive.  Describe another
+method for performing motion planning.
+
+You MAY (but do not need to) answer this question by researching on the
+internet. Cite the sources you were using and give an explanation in your own
+words
+
+\newpage
+\section*{Problem 3}
+
+Consider an arrangement $\A$ of six lines $\ell_1, \ell_2, \ldots, \ell_6$ and
+let $f$ be an arbitrary vertex, edge, or face of $\A$. Then $f$ has an
+associated sign vector $(s_1, s_2, s_3, s_4, s_5, s_6)$, where for each $1 \le i
+\le 6$:
+
+$$
+    s_i =
+    \begin{cases}
+        +1, & \text{if $f$ lies above $l_i$} \\
+        0,  & \text{if $f$ lies on $l_i$} \\
+        -1, & \text{if $f$ lies below $l_i$}
+    \end{cases}
+$$
+
+\begin{enumerate}
+
+    \item For each of the sign vectors below, give an arrangement of six lines
+        that has a vertex, edge, or face with this sign vector. Label the lines
+        and mark the vertex, edge, or face. Make the arrangement simple, if
+        possible, or argue why the arrangement cannot be simple.
+        \begin{enumerate}
+            \item $(+1, +1, +1, +1, +1, +1)$
+            \item $(+1, 0, 0, -1, -1, -1)$
+            \item $(-1, 0, 0, -1, +1, -1)$
+            \item $(+1, -1, -1, -1, -1, -1)$
+        \end{enumerate}
+
+    \item Can one find a single arrangement of lines that contains a vertex,
+        edge, or face for each of the four sign vectors? If you can, provide an
+        example.  If you cannot, argue why not.
+
+\end{enumerate}
+
+\newpage
+\section*{Problem 4}
+
+We saw in class a few applications of arrangements for solving geometric
+problems. Find a problem whose solution was not described in class.  Give a
+description of the problem and how one can use arrangements to solve the
+problem.
+
+You MAY (but do not need to) answer these questions by researching on the
+internet. Cite the sources you were using and give an explanation in your own
+words.
+
+
+\end{document}
