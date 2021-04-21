@@ -24,6 +24,7 @@ While I invite you to spend as much time on these problems as you like, I do not
 expect you to spend any more than 3 hours on the entire assignment so that you
 can focus on your projects.
 
+
 \newpage
 \section*{Problem 1}
 
@@ -35,7 +36,19 @@ correspond to?
 
 You MAY (but do not need to) answer these questions by researching on the
 internet. Cite the sources you were using and give an explanation in your own
-words
+words. \\
+
+\answer
+Let $P \subset \R ^2$ be our set of points.
+For the first question, we want to know what happens when we project the lower envelope of the planes tangent to the lifted points.
+We thought about this and came to the conjecture that the projection is the voronoi diagram of the vertices on the boundary of the convex hull of $P$.
+The reason we think this is that points on the convex hull of will have tangent planes with the ``extreme'' normal vectors.
+What we mean by this is that they have the normal vectors closest to vertical and closest to flat.
+This means they will end up on the lower envelope at some region of the plane, although there is some weird flipping going on that we can't quite grasp.
+
+Analogously, we think that the project of the upper convex hull is the delauney triangulation of the vertices on the boundary of the convex hull of $P$.
+We think this because of an example we worked with where points are contained in the square $[-1,1]^2 \subset \R ^2$.
+This is definitely not a proof but our guess worked nicely in the example!
 
 \newpage
 \section*{Problem 2}
@@ -48,7 +61,24 @@ method for performing motion planning.
 
 You MAY (but do not need to) answer this question by researching on the
 internet. Cite the sources you were using and give an explanation in your own
-words
+words. \\
+
+\answer
+Instead of computing the entire Minkowski sum of the input to arrive at the configuration space, we take a more heuristic approach.
+Like the motion planning algorithm we learned about in class, we are given the input, the polygonal object, and the source/target positions.
+Our first step is to try to go in a straight line from the source to the target.
+Instead of just moving the point, we attempt to move the boundary of the object (these are the green lines in Figure \ref{fig:motion}).
+If we can move directly towards the target, we do so.
+Otherwise, we move to the border of the first obstacle blocking us and repeat.
+Figure \ref{fig:motion} shows some of the steps of our algorithm running.
+It succeeds in stage 4.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\textwidth]{motion-planning}
+	\caption{A quick sketch of our idea in action}
+	\label{fig:motion}
+\end{figure}
 
 \newpage
 \section*{Problem 3}
@@ -86,6 +116,26 @@ $$
 
 \end{enumerate}
 
+\answer
+\begin{enumerate}
+	\item Figure \ref{fig:arrangments} the desired arrangements.
+	They are all simple.
+	For parts a and d, I chose a face and labeled it $F$.
+	For parts b and c, I chose a vertex and labeled it $v$.
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.9\textwidth]{arrangements}
+		\label{fig:arrangments}
+	\end{figure}
+
+	\item We can't have an arrangement that contains a vertex, edge, or face for each of the sign vectors for the following reason.
+	Parts b and c require that something (vertex, edge, or face) must lie precisely on both lines $l_2$ and $l_3$.
+	The only object that can have this property is a vertex, label it $v$
+	But then b and c have opposite requirements for $v$: b says $v$ must be above line $l_1$ while c says that $v$ must be below $l_1$.
+	We cannot have a point both above and below a line so no arrangements exists that contains objects satisfying all four constraints.
+\end{enumerate}
+
 \newpage
 \section*{Problem 4}
 
@@ -96,7 +146,18 @@ problem.
 
 You MAY (but do not need to) answer these questions by researching on the
 internet. Cite the sources you were using and give an explanation in your own
-words.
+words. \\
 
+\answer
+Suppose that you are given some set of lines in $\R ^2$ and you wish to compute the maximum finite area of the polygons formed by the lines.
+One way to think of this (incidentally, it is how Elliott was struck with the idea) is to imagine that the lines are laser beams in a security system and we want to make sure that there is no ``face" large enough for someone to get through.
+
+If we are given $n$ lines, we can compute the arrangement $O(n^2)$ time.
+Then there are $O(n^2)$ convex faces.
+For any convex shape, we can compute its area by picking a point in side the shape, forming triangles with the points on the boundary, and adding up the area of the triangles.
+A strict bound on computing the area of any convex shape is $O(n)$.
+But then a naive bound for computing the area of all of the faces would be $O(n^3)$ (this is $O(n)$ time for each of the $O(n^2)$ faces).
+However, I feel like there is an argument similar to the zoning theorem where we can say that computing the area for all the faces ends up running in $O(n^2)$ time.
+Then we can just pick the finite face with the largest area and we have our answer!
 
 \end{document}
